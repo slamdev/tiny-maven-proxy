@@ -21,5 +21,5 @@ ENTRYPOINT ["java",\
             "-jar",\
             "tiny-maven-proxy.jar",\
             "--maven.dir", "/var/lib/maven",\
-            "--mirror", "https://jcenter.bintray.com,https://repo1.maven.org/maven2"\
+            "--mirror", "https://jcenter.bintray.com,https://repo1.maven.org/maven2,https://plugins.gradle.org/m2"\
 ]
