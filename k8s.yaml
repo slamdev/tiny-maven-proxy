@@ -1,0 +1,67 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: tiny-maven-proxy
+spec:
+  type: ClusterIP
+  selector:
+    name: tiny-maven-proxy
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tiny-maven-proxy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: tiny-maven-proxy
+  template:
+    metadata:
+      labels:
+        name: tiny-maven-proxy
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+        - name: tiny-maven-proxy
+          image: slamdev/tiny-maven-proxy
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 5956
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 20
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 5956
+              scheme: HTTP
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 20
+          ports:
+            - name: http
+              containerPort: 5956
+          resources:
+            requests:
+              cpu: 0.1
+              memory: 256Mi
+            limits:
+              cpu: 0.2
+              memory: 512Mi
+          volumeMounts:
+            - name: maven
+              mountPath: /var/lib/maven
+      volumes:
+        - name: maven
+          emptyDir: {}
